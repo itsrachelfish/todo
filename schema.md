@@ -2,7 +2,6 @@
 This document describes the planned schema for the todo app.
 The app will be developed in phases, initially as a single user application and then expanded to support multiple users and teams.
 
-
 ## Basic single-user schema
 - projects
   - id
@@ -15,8 +14,15 @@ The app will be developed in phases, initially as a single user application and 
   - parent_id     _(The parent task id, to allow nesting tasks, nullable)_
   - project_id
   - status        _(Complete, In Progress, Deleted, etc.)_
-  - type          _(Checkbox, Note)_
+  - type          _(One Time, Recurring, Note)_
   - description
+  - timestamps
+
+- task_options    _(Used for storing optional task data like recurring dates and deadlines)_
+  - id
+  - task_id
+  - key           _(Deadline, Recurring, Recurring Monthly, Recurring Annually)_
+  - value         _(Possible values - Deadline: Date; Recurring: Daily | Day of week (Monday, Tuesday, etc); Recurring Monthly: Day of Month; Recurring Annually: Date)_
   - timestamps
 
 - statuses
@@ -63,8 +69,16 @@ The app will be developed in phases, initially as a single user application and 
   - owner_id
   - owner_type    _(Can be owned by teams, projects, or users)_
   - status        _(Complete, In Progress, Deleted, etc.)_
-  - type          _(Checkbox, Iterator, Countdown, Note)_
+  - type          _(One Time, Recurring, Counter, Note)_
   - description
+  - timestamps
+
+- task_options    _(Used for storing optional task data like recurring dates and deadlines)_
+  - id
+  - task_id
+  - user_id       _(The user who last interacted with this option)_
+  - key           _(Deadline, Recurring, Recurring Monthly, Recurring Annually, Iterator, Countdown)_
+  - value         _(Possible values - Deadline: Date; Recurring: Daily | Day of week (Monday, Tuesday, etc); Recurring Monthly: Day of Month; Recurring Annually: Date; Counter: Integer)_
   - timestamps
 
 - statuses
@@ -75,13 +89,4 @@ The app will be developed in phases, initially as a single user application and 
   - duration
   - started_at
   - ended_at
-  - timestamps
-
-
-## Needs further thought
-- task_data       _(Used for storing iterator and countdown values)_
-  - id
-  - task_id
-  - user_id       _(The user who last interacted with this task)_
-  - value
   - timestamps

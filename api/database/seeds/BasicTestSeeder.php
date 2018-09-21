@@ -18,6 +18,8 @@ class BasicTestSeeder extends Seeder
         {
             echo "Created " . $class . ": " . $product->{$output} . "\n";
         }
+
+        return $products;
     }
 
     /**
@@ -27,6 +29,13 @@ class BasicTestSeeder extends Seeder
      */
     public function run()
     {
-        $this->createAndEcho(Project::class, 'name', 3);
+        $projects = $this->createAndEcho(Project::class, 'name', 3);
+
+        foreach($projects as $project)
+        {
+            $tasks = $this->createAndEcho(Task::class, 'description', 5);
+
+            dump($tasks);
+        }
     }
 }

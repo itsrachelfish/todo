@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Collection;
 
 use App\Models\Project;
 use App\Models\Task;
@@ -31,14 +32,25 @@ class BasicTestSeeder extends Seeder
     {
         echo "Creating projects:\n";
         $projects = $this->createAndEcho(Project::class, 'name', 3);
+        $tasks = new Collection;
 
         foreach($projects as $project)
         {
             echo "Creating tasks for project '{$project->name}'\n";
-            $tasks = $this->createAndEcho(Task::class, 'description', 5, ['project_id' => $project->id]);
+            $tasks = $tasks->concat($this->createAndEcho(Task::class, 'description', 5, ['project_id' => $project->id]));
         }
 
         echo "Creating tasks not associated with a project\n";
-        $tasks = $this->createAndEcho(Task::class, 'description', 5);
+        $tasks = $tasks->concat($this->createAndEcho(Task::class, 'description', 5));
+
+        echo "Creating random task options\n";
+        foreach($tasks as $task)
+        {
+            // Only create options for roughly half of the tasks
+            if(random_int(0, 1))
+            {
+                $this->createAndEcho(TaskOption::class, 'key', 1, ['task_id' => $task->id]);
+            }
+        }
     }
 }

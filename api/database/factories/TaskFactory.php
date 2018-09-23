@@ -10,8 +10,8 @@ $factory->define(Task::class, function (Faker $faker)
 
     return
     [
-        'status' => $statuses[array_rand($statuses)],
-        'type' => $types[array_rand($types)],
+        'status' => $faker->randomElement($statuses),
+        'type' => $faker->randomElement($types),
         'description' => $faker->bs,
     ];
 });

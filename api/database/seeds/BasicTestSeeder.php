@@ -43,6 +43,16 @@ class BasicTestSeeder extends Seeder
         echo "Creating tasks not associated with a project\n";
         $tasks = $tasks->concat($this->createAndEcho(Task::class, 'description', 5));
 
+        echo "Creating random child tasks\n";
+        foreach($tasks as $task)
+        {
+            // Only create child tasks for roughly a quarter of the tasks
+            if(random_int(0, 3) === 1)
+            {
+                $this->createAndEcho(Task::class, 'description', random_int(1, 3), ['parent_id' => $task->id, 'project_id' => $task->project_id]);
+            }
+        }
+
         echo "Creating random task options\n";
         foreach($tasks as $task)
         {

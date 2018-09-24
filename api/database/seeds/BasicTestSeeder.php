@@ -23,15 +23,16 @@ class BasicTestSeeder extends Seeder
         return $products;
     }
 
-    /**
-     * Run the database seeds.
-     *
-     * @return void
-     */
-    public function run()
+    private function createProjects()
     {
         echo "Creating projects:\n";
         $projects = $this->createAndEcho(Project::class, 'name', 3);
+
+        return $projects;
+    }
+
+    private function createTasks($projects)
+    {
         $tasks = new Collection;
 
         foreach($projects as $project)
@@ -43,15 +44,29 @@ class BasicTestSeeder extends Seeder
         echo "Creating tasks not associated with a project\n";
         $tasks = $tasks->concat($this->createAndEcho(Task::class, 'description', 5));
 
+        return $tasks;
+    }
+
+    private function createChildTasks($tasks)
+    {
+        $childTasks = new Collection;
+
         echo "Creating random child tasks\n";
         foreach($tasks as $task)
         {
             // Only create child tasks for roughly a quarter of the tasks
             if(random_int(0, 3) === 1)
             {
-                $this->createAndEcho(Task::class, 'description', random_int(1, 3), ['parent_id' => $task->id, 'project_id' => $task->project_id]);
+                $childTasks->concat($this->createAndEcho(Task::class, 'description', random_int(1, 3), ['parent_id' => $task->id, 'project_id' => $task->project_id]));
             }
         }
+
+        return $childTasks;
+    }
+
+    private function createTaskOptions($tasks)
+    {
+        $taskOptions = new Collection;
 
         echo "Creating random task options\n";
         foreach($tasks as $task)
@@ -59,8 +74,24 @@ class BasicTestSeeder extends Seeder
             // Only create options for roughly half of the tasks
             if(random_int(0, 1))
             {
-                $this->createAndEcho(TaskOption::class, 'key', 1, ['task_id' => $task->id]);
+                $taskOptions->concat($this->createAndEcho(TaskOption::class, 'key', 1, ['task_id' => $task->id]));
             }
         }
+
+        return $taskOptions;
+    }
+
+    /**
+     * Run the database seeds.
+     *
+     * @return void
+     */
+    public function run()
+    {
+        $projects = $this->createProjects();
+        $tasks = $this->createTasks($projects);
+
+        $this->createChildTasks($tasks);
+        $this->createTaskOptions($tasks);
     }
 }

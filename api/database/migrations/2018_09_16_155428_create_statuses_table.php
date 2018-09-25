@@ -18,7 +18,7 @@ class CreateStatusesTable extends Migration
             $table->increments('id');
             $table->integer('task_id')->unsigned();
             $table->string('status');
-            $table->time('duration');
+            $table->time('duration')->nullable();
             $table->time('started_at')->nullable();
             $table->time('ended_at')->nullable();
             $table->timestamps();

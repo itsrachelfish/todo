@@ -5,9 +5,5 @@ use App\Models\Status;
 
 $factory->define(Status::class, function (Faker $faker)
 {
-    return
-    [
-        'status' => '',
-        'duration' => $faker->time(),
-    ];
+    return [];
 });

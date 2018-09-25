@@ -93,6 +93,19 @@ class BasicTestSeeder extends Seeder
         return $taskOptions;
     }
 
+    private function createStatuses($tasks)
+    {
+        $statuses = new Collection;
+
+        // Create a status entry for every task
+        foreach($tasks as $task)
+        {
+             $statuses->concat($this->createAndEcho(Status::class, 'status', 1, ['task_id' => $task->id, 'status' => $task->status]));
+        }
+
+        return $statuses;
+    }
+
     /**
      * Run the database seeds.
      *
@@ -105,5 +118,6 @@ class BasicTestSeeder extends Seeder
 
         $this->createChildTasks($tasks);
         $this->createTaskOptions($tasks);
+        $this->createStatuses($tasks);
     }
 }

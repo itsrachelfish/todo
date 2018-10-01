@@ -14,7 +14,7 @@ class ProjectController extends Controller
      */
     public function index()
     {
-        dump("Hello world");
+        return response()->json(Project::get());
     }
 
     /**
@@ -46,7 +46,7 @@ class ProjectController extends Controller
      */
     public function show(Project $project)
     {
-        //
+        return response()->json($project);
     }
 
     /**

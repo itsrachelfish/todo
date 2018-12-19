@@ -23,6 +23,13 @@ class Create extends Command
     protected $description = 'Create a new project via API request';
 
     /**
+     * A guzzle object for making API requests
+     *
+     * @var GuzzleHttp\Client
+     */
+    private $api;
+
+    /**
      * Create a new command instance.
      *
      * @return void
@@ -30,6 +37,7 @@ class Create extends Command
     public function __construct()
     {
         parent::__construct();
+        $this->api = new \GuzzleHttp\Client();
     }
 
     /**
@@ -39,13 +47,15 @@ class Create extends Command
      */
     public function handle()
     {
-        $api = new \GuzzleHttp\Client();
-        $response = $api->post(env('APP_URL') . '/api/project',
+        $name = $this->ask("[Required] What's the name of your project?");
+        $description = $this->ask('[Optional] A short description of your project');
+
+        $response = $this->api->post(env('APP_URL') . '/api/project',
         [
             'form_params' =>
             [
-                'name' => 'Test project',
-                'description' => 'Yay!'
+                'name' => $name,
+                'description' => $description,
             ]
         ]);
 

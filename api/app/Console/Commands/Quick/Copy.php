@@ -11,14 +11,14 @@ class Copy extends Command
      *
      * @var string
      */
-    protected $signature = 'quick:copy';
+    protected $signature = 'quick:copy {--prune : Remove completed tasks from current todo file}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Quick todo list - Copy todo.md file';
+    protected $description = 'Copy todo.md file to dated file';
 
     /**
      * Create a new command instance.
@@ -37,11 +37,35 @@ class Copy extends Command
      */
     public function handle()
     {
+        $prune = $this->option('prune');
         $todoFile = env('TODO_PATH') . env('TODO_FILE');
         $datedFile = env('TODO_PATH') . date('Y-m-d') . '.md';
         $todoData = file_get_contents($todoFile);
-        file_put_contents($datedFile, $todoData);
 
+        file_put_contents($datedFile, $todoData);
         $this->info("File {$datedFile} created.");
+
+        if($prune)
+        {
+            $inputLines = explode("\n", $todoData);
+            $outputLines = [];
+
+            // Check each line of the input file for completed tasks
+            foreach($inputLines as $line)
+            {
+                if(preg_match("/^\s*- \[x\]/", $line))
+                {
+                    $this->info("Pruning completed task: $line");
+                }
+                else
+                {
+                    $outputLines[] = $line;
+                }
+            }
+
+            // Recombine input file
+            $output = implode("\n", $outputLines);
+            file_put_contents($todoFile, $output);
+        }
     }
 }

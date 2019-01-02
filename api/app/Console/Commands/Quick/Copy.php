@@ -57,6 +57,10 @@ class Copy extends Command
                 {
                     $this->info("Pruning completed task: $line");
                 }
+                elseif(preg_match("/^\s*- \[NOPE\]/i", $line))
+                {
+                    $this->info("Pruning deleted task: $line");
+                }
                 else
                 {
                     $outputLines[] = $line;

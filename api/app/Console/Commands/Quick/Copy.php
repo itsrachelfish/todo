@@ -49,21 +49,45 @@ class Copy extends Command
         {
             $inputLines = explode("\n", $todoData);
             $outputLines = [];
+            $removing = false;
+            $indentation = 0;
 
             // Check each line of the input file for completed tasks
             foreach($inputLines as $line)
             {
-                if(preg_match("/^\s*- \[x\]/", $line))
+                if(preg_match("/^(\s*)- \[x\]/", $line, $match))
                 {
                     $this->info("Pruning completed task: $line");
+                    $removing = true;
+                    $indentation = strlen($match[1]);
                 }
-                elseif(preg_match("/^\s*- \[NOPE\]/i", $line))
+                elseif(preg_match("/^(\s*)- \[NOPE\]/i", $line, $match))
                 {
                     $this->info("Pruning deleted task: $line");
+                    $removing = true;
+                    $indentation = strlen($match[1]);
+                }
+                elseif(preg_match("/^(\s*)- /i", $line, $match))
+                {
+                    // Remove this line if it was indented more than the previous lines (it's a comment / sub-task)
+                    if($indentation >= strlen($match[1]))
+                    {
+                        $removing = false;
+                    }
+
+                    if($removing)
+                    {
+                        $this->info("Pruning comment / sub-task: $line");
+                    }
+                    else
+                    {
+                        $outputLines[] = $line;
+                    }
                 }
                 else
                 {
                     $outputLines[] = $line;
+                    $removing = false;
                 }
             }
 

@@ -24,8 +24,8 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command('quick:copy')->everyMinute();
-        $schedule->command('quick:copy --prune')->dailyAt('23:59');
+//        $schedule->command('quick:copy')->everyMinute();
+//        $schedule->command('quick:copy --prune')->dailyAt('23:59');
     }
 
     /**

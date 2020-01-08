@@ -58,18 +58,51 @@ class Copy extends Command
         $datedFile = "{$path}{$filename}/" . date('Y-m-d') . '.md';
         $fileData = file_get_contents($file);
 
+        // Create a directory for this file if necessary
         if(!file_exists("{$path}{$filename}"))
         {
             mkdir("{$path}{$filename}", 0755, true);
         }
 
-        file_put_contents($datedFile, $fileData);
+        // Process the file to extract metadata and replace keywords
+        $processedFile = $this->processFile($fileData);
+
+        // Back up contents of todo file
+        file_put_contents($datedFile, $processedFile['data']);
         $this->info("File {$datedFile} created.");
 
         if($prune)
         {
-            $this->pruneFile($file, $fileData);
+            // Prune completed tasks when the prune option is set
+            $this->pruneFile($file, $processedFile['data']);
         }
+        elseif($fileData != $processedFile['data'])
+        {
+            // Rewrite the input file when a change has been made
+            file_put_contents($file, $processedFile['data']);
+        }
+    }
+
+    private function processFile($fileData)
+    {
+        $fileLines = explode("\n", $fileData);
+        $outputLines = [];
+        $metadata = '';
+
+        foreach($fileLines as $line)
+        {
+            if(preg_match("/^(#+ )today$/i", $line, $match))
+            {
+                $line = $match[1] . date('l, F jS, Y');
+            }
+
+            $outputLines[] = $line;
+        }
+
+        return [
+            'data' => implode("\n", $outputLines),
+            'metadata' => $metadata,
+        ];
     }
 
     private function pruneFile($file, $fileData)

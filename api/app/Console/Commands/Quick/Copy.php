@@ -20,6 +20,8 @@ class Copy extends Command
      */
     protected $description = 'Copy todo.md file to dated file';
 
+    private $path;
+
     /**
      * Create a new command instance.
      *
@@ -28,6 +30,7 @@ class Copy extends Command
     public function __construct()
     {
         parent::__construct();
+        $this->path = env('TODO_PATH');
     }
 
     /**
@@ -38,38 +41,44 @@ class Copy extends Command
     public function handle()
     {
         // Get list of files in todo directory
-        $todoFiles = scandir(env('TODO_PATH'));
+        $todoFiles = scandir($this->path);
 
         foreach($todoFiles as $file)
         {
             // Ignore directories
-            if(is_file(env('TODO_PATH') . $file))
+            if(is_file($this->path . $file))
             {
-                $fileInfo = pathinfo(env('TODO_PATH') . $file);
-                $this->saveFile(env('TODO_PATH'), $fileInfo['filename']);
+                $fileInfo = pathinfo($this->path . $file);
+                $this->saveFile($fileInfo['filename']);
             }
         }
     }
 
-    private function saveFile($path, $filename)
+    private function saveFile($filename)
     {
         $prune = $this->option('prune');
-        $file = "{$path}{$filename}.md";
-        $datedFile = "{$path}{$filename}/" . date('Y-m-d') . '.md';
+        $file =  "{$this->path}{$filename}.md";
+        $today = "{$this->path}{$filename}/" . date('Y-m-d') . '.md';
         $fileData = file_get_contents($file);
 
-        // Create a directory for this file if necessary
-        if(!file_exists("{$path}{$filename}"))
+        if(!file_exists("{$this->path}{$filename}"))
         {
-            mkdir("{$path}{$filename}", 0755, true);
+            // Create a directory for this file if necessary
+            mkdir("{$this->path}{$filename}", 0755, true);
+        }
+        else
+        {
+            // Find the most recently created backup for this file
+            $mostRecentBackup = scandir("{$this->path}{$filename}", SCANDIR_SORT_DESCENDING)[0];
+
+            if(is_file("{$this->path}{$filename}/{$mostRecentBackup}"))
+            {
+                $backupData = file_get_contents("{$this->path}{$filename}/{$mostRecentBackup}");
+            }
         }
 
         // Process the file to extract metadata and replace keywords
         $processedFile = $this->processFile($fileData);
-
-        // Back up contents of todo file
-        file_put_contents($datedFile, $processedFile['data']);
-        $this->info("File {$datedFile} created.");
 
         if($prune)
         {
@@ -81,6 +90,17 @@ class Copy extends Command
             // Rewrite the input file when a change has been made
             file_put_contents($file, $processedFile['data']);
         }
+
+        // If the current file is the same as the most recent backup, skip creating a new one
+        if(isset($backupData) && $backupData == $processedFile['data'])
+        {
+            $this->info("Duplicate file {$today} skipped.");
+            return;
+        }
+
+        // Create a daily back up of the file
+        file_put_contents($today, $processedFile['data']);
+        $this->info("File {$today} created.");
     }
 
     private function processFile($fileData)

@@ -83,7 +83,7 @@ class Copy extends Command
         if($prune)
         {
             // Prune completed tasks when the prune option is set
-            $this->pruneFile($file, $processedFile['data']);
+            $this->pruneFile($file, $processedFile);
         }
         elseif($fileData != $processedFile['data'])
         {
@@ -107,10 +107,15 @@ class Copy extends Command
     {
         $fileLines = explode("\n", $fileData);
         $outputLines = [];
-        $metadata = '';
+        $metadata = false;
 
-        foreach($fileLines as $line)
+        foreach($fileLines as $lineNumber => $line)
         {
+            if($lineNumber === 0)
+            {
+                $metadata = json_decode($line, true);
+            }
+
             if(preg_match("/^(#+ )today$/i", $line, $match))
             {
                 $line = $match[1] . date('l, F jS, Y');
@@ -125,12 +130,18 @@ class Copy extends Command
         ];
     }
 
-    private function pruneFile($file, $fileData)
+    private function pruneFile($file, $processedFile)
     {
-        $inputLines = explode("\n", $fileData);
+        $inputLines = explode("\n", $processedFile['data']);
         $outputLines = [];
         $removing = false;
         $indentation = 0;
+
+        // If this file is processed weekly and it is not the last day of the week, skip pruning
+        if(isset($processedFile['metadata']['frequency']) && $processedFile['metadata']['frequency'] == 'weekly' && date('w') != 6)
+        {
+            return;
+        }
 
         // Check each line of the input file for completed tasks
         foreach($inputLines as $line)

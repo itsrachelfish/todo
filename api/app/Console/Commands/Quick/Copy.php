@@ -146,6 +146,14 @@ class Copy extends Command
         // Check each line of the input file for completed tasks
         foreach($inputLines as $line)
         {
+            // If the wipe option is being used
+            if(isset($processedFile['metadata']['wipe']) && $processedFile['metadata']['wipe'] == true)
+            {
+                // Clear everything out of the file each time it gets pruned, except for its metadata
+                $outputLines[] = json_encode($processedFile['metadata']);
+                break;
+            }
+
             if(preg_match("/^(\s*)- \[x\]/", $line, $match))
             {
                 $this->info("Pruning completed task: $line");

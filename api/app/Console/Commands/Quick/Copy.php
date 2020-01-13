@@ -83,12 +83,19 @@ class Copy extends Command
         if($prune)
         {
             // Prune completed tasks when the prune option is set
-            $this->pruneFile($file, $processedFile);
+            $processedFile['data'] = $this->pruneFile($file, $processedFile);
         }
         elseif($fileData != $processedFile['data'])
         {
             // Rewrite the input file when a change has been made
             file_put_contents($file, $processedFile['data']);
+        }
+
+        // If the current file is empty, skip creating a daily backup file
+        if(empty(trim($processedFile['data'])) || trim($processedFile['data']) == json_encode($processedFile['metadata']))
+        {
+            $this->info("Empty file {$today} skipped.");
+            return;
         }
 
         // If the current file is the same as the most recent backup, skip creating a new one
@@ -193,5 +200,7 @@ class Copy extends Command
         // Recombine input file
         $output = implode("\n", $outputLines);
         file_put_contents($file, $output);
+
+        return $output;
     }
 }

@@ -1,11 +1,11 @@
 <template>
   <div class="home">
-    <div class="text-xl mb-10">
+    <div class="text-xl mb-4">
       {{ timerOutput }}
     </div>
 
     <div v-if="state == 'stopped'">
-      <span class="bg-green-600 text-white font-bold p-4 rounded-xl">Start Timer</span>
+      <div class="bg-green-600 inline-block text-white font-bold p-4 rounded-xl" @click="startTimer">Start Timer</div>
     </div>
 
     <div v-else-if="state == 'running'">
@@ -13,6 +13,7 @@
     </div>
 
     <div v-else-if="state == 'paused'">
+      Continue Timer
       Reset Timer
       Save Time
     </div>
@@ -31,6 +32,8 @@ export default {
     return {
       time: 0,
       state: 'stopped',
+      interval: false,
+      intervalTime: false,
     }
   },
 
@@ -62,6 +65,23 @@ export default {
       }
 
       return `${hours}h ${minutes}m ${seconds}s`;
+    },
+  },
+
+  methods: {
+    startTimer() {
+      this.intervalTime = new Date();
+      this.state = 'running';
+
+      this.interval = setInterval(() => {
+        // Find the difference between the current time and the time of the last interval
+        // It should be 500 ms, but the execution time of setInterval is variable (if the browser window is in focus, etc)
+        const currentTime = new Date();
+        const difference = currentTime.getTime() - this.intervalTime.getTime();
+
+        this.time += difference;
+        this.intervalTime = currentTime;
+      }, 500);
     },
   }
 }

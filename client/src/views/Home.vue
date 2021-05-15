@@ -18,12 +18,27 @@
       <div class="bg-red-600 cursor-pointer inline-block text-white font-bold p-4 m-4 rounded-xl" @click="clearTimer">Clear Timer</div>
     </div>
 
-    <h1 class="text-2xl font-bold">History</h1>
+    <h1 class="text-2xl mt-4 mb-1 font-bold">History</h1> Only show today? <input type="checkbox">
     <hr>
 
-    Add Time Manually
-    Today
-    History
+    <div v-for="(row, index) in history" :key="row.date">
+      <div class="grid grid-cols-6 mt-2" :class="(index % 2) ? 'bg-gray-200' : ''">
+        <div>
+          {{ row.date.toLocaleString() }}
+        </div>
+
+        <div>
+          {{ displayTimer(row.duration) }}
+        </div>
+
+        <div class="col-span-4">
+          {{ row.description }}
+        </div>
+      </div>
+    </div>
+
+    <hr>
+    <div class="bg-pink-500 cursor-pointer inline-block text-white font-bold p-4 m-4 rounded-xl" @click="manualHistory">Add History Manually</div>
   </div>
 </template>
 
@@ -37,12 +52,32 @@ export default {
       state: 'stopped',
       interval: false,
       intervalTime: false,
+      history: [{
+        date: new Date(),
+        duration: 31337,
+        description: 'this is an example',
+      },
+      {
+        date: new Date(),
+        duration: 1313337,
+        description: 'this is a very cool example!!!! wow it\'s awesome',
+      },
+      {
+        date: new Date(),
+        duration: 313337,
+        description: 'this is an example',
+      }],
     }
   },
 
   computed: {
     timerOutput() {
-      let timeRemaining = this.time;
+      return this.displayTimer(this.time);
+    },
+  },
+
+  methods: {
+    displayTimer(timeRemaining) {
       let milliseconds = 0;
       let seconds = 0;
       let minutes = 0;
@@ -69,9 +104,7 @@ export default {
 
       return `${hours}h ${minutes}m ${seconds}s`;
     },
-  },
 
-  methods: {
     startTimer() {
       this.state = 'running';
       this.intervalTime = new Date();

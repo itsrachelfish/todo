@@ -5,18 +5,21 @@
     </div>
 
     <div v-if="state == 'stopped'">
-      <div class="bg-green-600 inline-block text-white font-bold p-4 rounded-xl" @click="startTimer">Start Timer</div>
+      <div class="bg-green-600 cursor-pointer inline-block text-white font-bold m-4 p-4 rounded-xl" @click="startTimer">Start Timer</div>
     </div>
 
     <div v-else-if="state == 'running'">
-      Pause Timer
+      <div class="bg-yellow-300 cursor-pointer inline-block font-bold m-4 p-4 rounded-xl" @click="pauseTimer">Pause Timer</div>
     </div>
 
     <div v-else-if="state == 'paused'">
-      Continue Timer
-      Reset Timer
-      Save Time
+      <div class="bg-green-600 cursor-pointer inline-block text-white font-bold p-4 m-4 rounded-xl" @click="startTimer">Continue Recording</div>
+      <div class="bg-blue-600 cursor-pointer inline-block text-white font-bold p-4 m-4 rounded-xl" @click="saveHistory">Save Time</div>
+      <div class="bg-red-600 cursor-pointer inline-block text-white font-bold p-4 m-4 rounded-xl" @click="clearTimer">Clear Timer</div>
     </div>
+
+    <h1 class="text-2xl font-bold">History</h1>
+    <hr>
 
     Add Time Manually
     Today
@@ -70,8 +73,8 @@ export default {
 
   methods: {
     startTimer() {
-      this.intervalTime = new Date();
       this.state = 'running';
+      this.intervalTime = new Date();
 
       this.interval = setInterval(() => {
         // Find the difference between the current time and the time of the last interval
@@ -82,6 +85,23 @@ export default {
         this.time += difference;
         this.intervalTime = currentTime;
       }, 500);
+    },
+
+    pauseTimer() {
+      this.state = 'paused';
+      clearInterval(this.interval);
+
+      const currentTime = new Date();
+      const difference = currentTime.getTime() - this.intervalTime.getTime();
+
+      this.time += difference;
+    },
+
+    clearTimer() {
+      this.state = 'stopped';
+      clearInterval(this.interval);
+
+      this.time = 0;
     },
   }
 }

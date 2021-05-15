@@ -52,21 +52,7 @@ export default {
       state: 'stopped',
       interval: false,
       intervalTime: false,
-      history: [{
-        date: new Date(),
-        duration: 31337,
-        description: 'this is an example',
-      },
-      {
-        date: new Date(),
-        duration: 1313337,
-        description: 'this is a very cool example!!!! wow it\'s awesome',
-      },
-      {
-        date: new Date(),
-        duration: 313337,
-        description: 'this is an example',
-      }],
+      history: [],
     }
   },
 
@@ -74,6 +60,14 @@ export default {
     timerOutput() {
       return this.displayTimer(this.time);
     },
+  },
+
+  created() {
+    const savedHistory = localStorage.getItem('todoHistory');
+
+    if(savedHistory) {
+      this.history = JSON.parse(savedHistory);
+    }
   },
 
   methods: {
@@ -135,6 +129,33 @@ export default {
       clearInterval(this.interval);
 
       this.time = 0;
+    },
+
+    saveHistory() {
+      const description = prompt('What were you working on?');
+
+      this.history.push({
+        date: new Date(),
+        duration: this.time,
+        description: description,
+      });
+
+      this.clearTimer();
+      localStorage.setItem('todoHistory', JSON.stringify(this.history));
+    },
+
+    manualHistory() {
+      const hours = parseInt(prompt('How many hours did you work for?'));
+      const minutes = parseInt(prompt('How many minutes did you work for?'));
+      const description = prompt('What were you working on?');
+
+      this.history.push({
+        date: new Date(),
+        duration: (hours * 60 * 60 * 1000) + (minutes * 60 * 1000),
+        description: description,
+      });
+
+      localStorage.setItem('todoHistory', JSON.stringify(this.history));
     },
   }
 }

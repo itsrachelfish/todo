@@ -1,18 +1,35 @@
 <template>
   <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <div v-if="state == 'stopped'">
+      Start Timer
+
+      <span class="bg-red-600 p-4 rounded-xl">test</span>
+    </div>
+
+    <div v-else-if="state == 'running'">
+      Pause Timer
+    </div>
+
+    <div v-else-if="state == 'paused'">
+      Reset Timer
+      Save Time
+    </div>
+
+    Add Time Manually
+    Today
+    History
   </div>
 </template>
 
 <script>
-// @ is an alias to /src
-import HelloWorld from '@/components/HelloWorld.vue'
-
 export default {
   name: 'Home',
-  components: {
-    HelloWorld
-  }
+
+  data() {
+    return {
+      time: 0,
+      state: 'stopped',
+    }
+  },
 }
 </script>

@@ -22,7 +22,7 @@
     <hr>
 
     <div v-for="(row, index) in history" :key="row.date">
-      <div class="grid grid-cols-6 mt-2" :class="(index % 2) ? 'bg-gray-200' : ''">
+      <div class="grid grid-cols-7 mt-2" :class="(index % 2) ? 'bg-gray-200' : ''">
         <div>
           {{ row.date.toLocaleString() }}
         </div>
@@ -32,7 +32,11 @@
         </div>
 
         <div class="col-span-4">
-          {{ row.description }}
+          <span class="align-middle leading-none">{{ row.description }}</span>
+        </div>
+
+        <div>
+          <div class="bg-gray-400 hover:bg-red-600 leading-none align-middle cursor-pointer inline-block text-white font-bold pt-1 px-4 rounded-xl" @click="deleteHistory(index)">Delete</div>
         </div>
       </div>
     </div>
@@ -66,7 +70,10 @@ export default {
     const savedHistory = localStorage.getItem('todoHistory');
 
     if(savedHistory) {
-      this.history = JSON.parse(savedHistory);
+      this.history = JSON.parse(savedHistory).map((row) => {
+        row.date = new Date(row.date);
+        return row;
+      });
     }
   },
 
@@ -134,14 +141,18 @@ export default {
     saveHistory() {
       const description = prompt('What were you working on?');
 
-      this.history.push({
-        date: new Date(),
-        duration: this.time,
-        description: description,
-      });
+      if(description.length) {
+        this.history.push({
+          date: new Date(),
+          duration: this.time,
+          description: description,
+        });
 
-      this.clearTimer();
-      localStorage.setItem('todoHistory', JSON.stringify(this.history));
+        localStorage.setItem('todoHistory', JSON.stringify(this.history));
+        this.clearTimer();
+      } else {
+        alert('You have to enter a description!');
+      }
     },
 
     manualHistory() {
@@ -156,6 +167,15 @@ export default {
       });
 
       localStorage.setItem('todoHistory', JSON.stringify(this.history));
+    },
+
+    deleteHistory(index) {
+      const deleteConfirmed = confirm('Are you sure you want to delete this history?');
+
+      if(deleteConfirmed) {
+        this.history.splice(index, 1);
+        localStorage.setItem('todoHistory', JSON.stringify(this.history));
+      }
     },
   }
 }

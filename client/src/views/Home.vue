@@ -1,6 +1,6 @@
 <template>
   <div class="home">
-    <div class="text-xl mb-4">
+    <div class="text-5xl font-bold mb-4">
       {{ timerOutput }}
     </div>
 
@@ -21,7 +21,7 @@
     <h1 class="text-2xl mt-4 mb-1 font-bold">History</h1> Only show today? <input type="checkbox">
     <hr>
 
-    <div v-for="(row, index) in history" :key="row.date">
+    <div v-for="(row, index) in [...history].reverse()" :key="row.date">
       <div class="grid grid-cols-7 mt-2" :class="(index % 2) ? 'bg-gray-200' : ''">
         <div>
           {{ row.date.toLocaleString() }}

@@ -5,9 +5,10 @@
     <div class="inline-block text-left mb-8">
       <ol class="list-decimal">
         <li><s>Delete button for history rows</s></li>
-        <li>Show new history first</li>
+        <li><s>Show new history first</s></li>
         <li>Filter history by date</li>
         <li>Categorizing history into groups / tagging</li>
+        <li>Display total amount of time in the history</li>
         <li>Button for saving data to a file and importing</li>
       </ol>
     </div>

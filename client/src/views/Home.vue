@@ -36,7 +36,7 @@
         </div>
 
         <div>
-          <div class="bg-gray-400 hover:bg-red-600 leading-none align-middle cursor-pointer inline-block text-white font-bold pt-1 px-4 rounded-xl" @click="deleteHistory(index)">Delete</div>
+          <div class="bg-gray-400 hover:bg-red-600 leading-none align-middle cursor-pointer inline-block text-white font-bold pt-1 px-4 rounded-xl" @click="deleteHistory(history.length - (index + 1))">Delete</div>
         </div>
       </div>
     </div>

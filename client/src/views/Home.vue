@@ -14,6 +14,7 @@
 
     <div v-else-if="state == 'paused'">
       <div class="bg-green-600 cursor-pointer inline-block text-white font-bold p-4 m-4 rounded-xl" @click="startTimer">Continue Recording</div>
+      <div class="bg-yellow-600 cursor-pointer inline-block text-white font-bold m-4 p-4 rounded-xl" @click="editTimer">Edit Time</div>
       <div class="bg-blue-600 cursor-pointer inline-block text-white font-bold p-4 m-4 rounded-xl" @click="saveHistory">Save Time</div>
       <div class="bg-red-600 cursor-pointer inline-block text-white font-bold p-4 m-4 rounded-xl" @click="clearTimer">Clear Timer</div>
     </div>
@@ -136,6 +137,13 @@ export default {
       clearInterval(this.interval);
 
       this.time = 0;
+    },
+
+    editTimer() {
+      const hours = parseInt(prompt('How many hours have you worked so far?'));
+      const minutes = parseInt(prompt('How many minutes have you worked so far?'));
+
+      this.time = (hours * 60 * 60 * 1000) + (minutes * 60 * 1000);
     },
 
     saveHistory() {

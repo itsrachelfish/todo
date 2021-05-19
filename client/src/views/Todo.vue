@@ -18,10 +18,11 @@
     <div class="inline-block text-left mb-8">
       <ol class="list-decimal">
         <li>Starting a new timer when one is already paused</li>
-        <li>Ability to edit the time of a paused timer</li>
+        <li><s>Ability to edit the time of a paused timer</s></li>
         <li>Track the start and end time of each history entry</li>
         <li>Add descriptions while a timer is runnning</li>
         <li>Use modals instead of alert / confirm windows</li>
+        <li>Arbitrary events saved in the history (not time logs)</li>
       </ol>
     </div>
 

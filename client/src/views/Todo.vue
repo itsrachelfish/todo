@@ -6,6 +6,7 @@
       <ol class="list-decimal">
         <li><s>Delete button for history rows</s></li>
         <li><s>Show new history first</s></li>
+        <li>Write current time to localstorage whenever paused or something</li>
         <li>Filter history by date</li>
         <li>Categorizing history into groups / tagging</li>
         <li>Display total amount of time in the history</li>
@@ -17,6 +18,7 @@
 
     <div class="inline-block text-left mb-8">
       <ol class="list-decimal">
+        <li>Keep a timer running between refreshing / page navigation</li>
         <li>Starting a new timer when one is already paused</li>
         <li><s>Ability to edit the time of a paused timer</s></li>
         <li>Track the start and end time of each history entry</li>

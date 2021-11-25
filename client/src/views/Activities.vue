@@ -40,6 +40,28 @@
     <div>
       <div class="bg-blue-600 cursor-pointer inline-block text-white font-bold p-4 m-4 rounded-xl" @click="addActivity">Add An Activity</div>
     </div>
+
+    <hr class="border-1 border-gray-200 my-8" />
+
+    <div v-for="(row, index) in [...history].reverse()" :key="row.date">
+      <div class="grid grid-cols-7 mt-2" :class="(index % 2) ? 'bg-gray-200' : ''">
+        <div>
+          {{ row.date.toLocaleString() }}
+        </div>
+
+        <div>
+          {{ displayTimer(row.duration) }}
+        </div>
+
+        <div class="col-span-4">
+          <span class="align-middle leading-none">{{ row.description }}</span>
+        </div>
+
+        <div>
+          <div class="bg-gray-400 hover:bg-red-600 leading-none align-middle cursor-pointer inline-block text-white font-bold pt-1 px-4 rounded-xl" @click="deleteHistory(history.length - (index + 1))">Delete</div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -50,6 +72,7 @@ export default {
   data() {
     return {
       activities: [],
+      history: [],
       interval: false,
       intervalTime: false,
     }
@@ -62,10 +85,12 @@ export default {
   methods: {
     persistState() {
       localStorage.setItem('todoActivities', JSON.stringify(this.activities));
+      localStorage.setItem('todoHistory', JSON.stringify(this.history));
     },
 
     restoreState() {
       const savedActivities = localStorage.getItem('todoActivities');
+      const savedHistory = localStorage.getItem('todoHistory');
 
       if(savedActivities) {
         const parsedActivities = JSON.parse(savedActivities);
@@ -74,6 +99,18 @@ export default {
           this.activities = parsedActivities;
         }
       }
+
+      if(savedHistory) {
+        const parsedHistory = JSON.parse(savedHistory);
+
+        if(Array.isArray(parsedHistory)) {
+          this.history = parsedHistory.map((row) => {
+            row.date = new Date(row.date);
+            return row;
+          });
+        }
+      }
+
     },
 
     addActivity() {
@@ -123,6 +160,92 @@ export default {
       }
 
       return `${hours}h ${minutes}m ${seconds}s`;
+    },
+
+    // Helper function to clear the interval if there are no timers currently active
+    stopIntervalWhenNecessary() {
+      // Are any timers running?
+      const runningTimers = this.activities.filter((activity) => {
+        if(activity.state == 'running') {
+          return true;
+        }
+
+        return false;
+      });
+
+      // If there are no running timers, clear the interval
+      if(!runningTimers.length) {
+        clearInterval(this.interval);
+        this.interval = false;
+      }
+    },
+
+    startTimer(index) {
+      this.activities[index].state = 'running';
+
+      if(!this.interval) {
+        this.intervalTime = new Date();
+        this.interval = setInterval(() => {
+          // Find the difference between the current time and the time of the last interval
+          // It should be 500 ms, but the execution time of setInterval is variable (if the browser window is in focus, etc)
+          const currentTime = new Date();
+          const difference = currentTime.getTime() - this.intervalTime.getTime();
+
+          this.activities.forEach((activity, intervalIndex) => {
+            if(activity.state == 'running') {
+              this.activities[intervalIndex].time += difference;
+            }
+          });
+
+          this.intervalTime = currentTime;
+        }, 500);
+      }
+    },
+
+    pauseTimer(index) {
+      this.activities[index].state = 'paused';
+
+      const currentTime = new Date();
+      const difference = currentTime.getTime() - this.intervalTime.getTime();
+
+      this.activities[index].time += difference;
+      this.stopIntervalWhenNecessary();
+    },
+
+    clearTimer(index) {
+      this.activities[index].state = 'stopped';
+      this.activities[index].time = 0;
+      this.stopIntervalWhenNecessary();
+    },
+
+    editTimer(index) {
+      const hours = parseInt(prompt('How many hours have you worked so far?'));
+      const minutes = parseInt(prompt('How many minutes have you worked so far?'));
+
+      this.activities[index].time = (hours * 60 * 60 * 1000) + (minutes * 60 * 1000);
+    },
+
+    saveHistory(index) {
+      const task = prompt('(Optional) What were you working on?');
+      const description = task ? `${this.activities[index].name} - ${task}` :  this.activities[index].name;
+
+      this.history.push({
+        date: new Date(),
+        duration: this.activities[index].time,
+        description: description,
+      });
+
+      this.clearTimer(index);
+      this.persistState();
+    },
+
+    deleteHistory(index) {
+      const deleteConfirmed = confirm('Are you sure you want to delete this history?');
+
+      if(deleteConfirmed) {
+        this.history.splice(index, 1);
+        localStorage.setItem('todoHistory', JSON.stringify(this.history));
+      }
     },
   },
 }

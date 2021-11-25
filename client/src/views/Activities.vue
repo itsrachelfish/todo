@@ -55,7 +55,27 @@ export default {
     }
   },
 
+  created() {
+    this.restoreState();
+  },
+
   methods: {
+    persistState() {
+      localStorage.setItem('todoActivities', JSON.stringify(this.activities));
+    },
+
+    restoreState() {
+      const savedActivities = localStorage.getItem('todoActivities');
+
+      if(savedActivities) {
+        const parsedActivities = JSON.parse(savedActivities);
+
+        if(Array.isArray(parsedActivities)) {
+          this.activities = parsedActivities;
+        }
+      }
+    },
+
     addActivity() {
       const name = prompt("What's the activity?");
       const activity = {
@@ -65,6 +85,7 @@ export default {
       }
 
       this.activities.push(activity);
+      this.persistState();
     },
 
     displayTimer(timeRemaining) {

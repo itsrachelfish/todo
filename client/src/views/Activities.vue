@@ -11,7 +11,7 @@
             </h2>
 
             <div class="text-5xl font-bold mb-4">
-              {{ displayTimer(1234567) }}
+              {{ displayTimer(activity.time) }}
             </div>
           </div>
 
@@ -86,6 +86,15 @@ export default {
 
       this.activities.push(activity);
       this.persistState();
+    },
+
+    deleteActivity(index) {
+      const deleteConfirmed = confirm('Are you sure you want to delete this activity?');
+
+      if(deleteConfirmed) {
+        this.activities.splice(index, 1);
+        this.persistState();
+      }
     },
 
     displayTimer(timeRemaining) {

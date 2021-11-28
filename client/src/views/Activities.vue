@@ -177,7 +177,7 @@ export default {
 
       this.intervalTime = currentTime;
 
-      // TODO: Is there a performance impact from doing this every tick? 
+      // TODO: Is there a performance impact from doing this every tick?
       this.persistState();
     },
 
@@ -273,7 +273,7 @@ export default {
 
       if(deleteConfirmed) {
         this.history.splice(index, 1);
-        localStorage.setItem('todoHistory', JSON.stringify(this.history));
+        this.persistState();
       }
     },
   },

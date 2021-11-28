@@ -80,6 +80,7 @@ export default {
 
   created() {
     this.restoreState();
+    this.startIntervalWhenNecessary();
   },
 
   methods: {
@@ -162,6 +163,43 @@ export default {
       return `${hours}h ${minutes}m ${seconds}s`;
     },
 
+    intervalCallback() {
+      // Find the difference between the current time and the time of the last interval
+      // It should be 500 ms, but the execution time of setInterval is variable (if the browser window is in focus, etc)
+      const currentTime = new Date();
+      const difference = currentTime.getTime() - this.intervalTime.getTime();
+
+      this.activities.forEach((activity, intervalIndex) => {
+        if(activity.state == 'running') {
+          this.activities[intervalIndex].time += difference;
+        }
+      });
+
+      this.intervalTime = currentTime;
+
+      // TODO: Is there a performance impact from doing this every tick? 
+      this.persistState();
+    },
+
+    // Helper function to start the interval when there are timers currently active
+    startIntervalWhenNecessary() {
+      // Are any timers running?
+      const runningTimers = this.activities.filter((activity) => {
+        if(activity.state == 'running') {
+          return true;
+        }
+
+        return false;
+      });
+
+      // If there are running timers, start the interval
+      if(runningTimers.length) {
+        this.intervalTime = new Date();
+        this.interval = setInterval(this.intervalCallback, 500);
+      }
+    },
+
+
     // Helper function to clear the interval if there are no timers currently active
     stopIntervalWhenNecessary() {
       // Are any timers running?
@@ -185,21 +223,10 @@ export default {
 
       if(!this.interval) {
         this.intervalTime = new Date();
-        this.interval = setInterval(() => {
-          // Find the difference between the current time and the time of the last interval
-          // It should be 500 ms, but the execution time of setInterval is variable (if the browser window is in focus, etc)
-          const currentTime = new Date();
-          const difference = currentTime.getTime() - this.intervalTime.getTime();
-
-          this.activities.forEach((activity, intervalIndex) => {
-            if(activity.state == 'running') {
-              this.activities[intervalIndex].time += difference;
-            }
-          });
-
-          this.intervalTime = currentTime;
-        }, 500);
+        this.interval = setInterval(this.intervalCallback, 500);
       }
+
+      this.persistState();
     },
 
     pauseTimer(index) {
@@ -210,12 +237,14 @@ export default {
 
       this.activities[index].time += difference;
       this.stopIntervalWhenNecessary();
+      this.persistState();
     },
 
     clearTimer(index) {
       this.activities[index].state = 'stopped';
       this.activities[index].time = 0;
       this.stopIntervalWhenNecessary();
+      this.persistState();
     },
 
     editTimer(index) {
